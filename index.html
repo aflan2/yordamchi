@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description"
+    content="Yordamchi - Ko'zi ojiz insonlar uchun AI pul aniqlash ilovasi. O'zbekiston so'mlarini skanerlash.">
+  <title>Yordamchi - Pul Aniqlash</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- SPLASH -->
+  <div id="splash" class="screen active" role="alert" aria-live="assertive">
+    <div class="splash-logo">
+      <svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+        <circle cx="32" cy="28" r="14" />
+        <circle cx="32" cy="28" r="5" fill="#fff" stroke="none" />
+        <path d="M32 42v14M24 52h16" />
+      </svg>
+    </div>
+    <h1 class="splash-title">Yor<span>damchi</span></h1>
+    <p class="splash-sub">AI pul aniqlash yordamchisi</p>
+    <div class="splash-loader">
+      <div class="splash-loader-bar"></div>
+    </div>
+  </div>
+
+  <!-- WELCOME -->
+  <div id="welcome" class="screen hidden" role="main">
+    <div class="welcome-icon">
+      <svg viewBox="0 0 56 56" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+        <rect x="8" y="14" width="40" height="28" rx="4" />
+        <circle cx="28" cy="28" r="8" />
+        <circle cx="14" cy="28" r="2" fill="#fff" stroke="none" />
+        <circle cx="42" cy="28" r="2" fill="#fff" stroke="none" />
+      </svg>
+    </div>
+    <h2 class="welcome-title">Xush kelibsiz!</h2>
+    <p class="welcome-desc" id="welcomeDesc">Kamerangizni pulga yo'naltiring — AI avtomatik ravishda pul nominalini
+      aniqlaydi va ovoz chiqarib aytadi.</p>
+    <button class="btn-primary" id="btnStart" aria-label="Skanerlashni boshlash">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        stroke-linecap="round">
+        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+        <circle cx="12" cy="13" r="4" />
+      </svg>
+      Skanerlashni boshlash
+    </button>
+    <button class="btn-secondary" id="btnToSettings" aria-label="Sozlamalar">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round">
+        <circle cx="12" cy="12" r="3" />
+        <path
+          d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+      </svg>
+      Sozlamalar
+    </button>
+  </div>
+
+  <!-- SCANNER -->
+  <div id="scanner" class="screen hidden" role="main" aria-label="Pul skanerlash">
+    <div class="camera-viewport">
+      <video id="cameraFeed" autoplay playsinline muted></video>
+      <canvas id="analysisCanvas" style="display:none"></canvas>
+      <div class="camera-placeholder" id="cameraPlaceholder">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="8" y="12" width="48" height="40" rx="4" />
+          <circle cx="32" cy="32" r="10" />
+        </svg>
+        <p>Kamera yuklanmoqda...</p>
+      </div>
+    </div>
+
+    <div class="scanner-overlay">
+      <div class="scan-frame">
+        <div class="scan-corner-bl"></div>
+        <div class="scan-corner-br"></div>
+        <div class="scan-line"></div>
+      </div>
+    </div>
+
+    <div class="scanner-header">
+      <div class="scanner-header-title">
+        <span class="dot"></span>
+        <span id="scanStatusText">Skanerlash...</span>
+      </div>
+      <div class="scanner-controls">
+        <button class="scanner-btn" id="btnFlash" aria-label="Chiroq">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+        </button>
+        <button class="scanner-btn" id="btnHistory" aria-label="Tarix">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M12 8v4l3 3" />
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+        </button>
+        <button class="scanner-btn" id="btnSettingsFromScan" aria-label="Sozlamalar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="result-panel">
+      <p class="scan-instruction" id="scanInstruction">Pulni ramkaga joylashtiring</p>
+      <div class="result-amount" id="resultAmount" aria-live="assertive" role="alert"></div>
+      <div class="result-confidence" id="resultConfidence" style="display:none">
+        <span id="confidenceText">99% aniqlik</span>
+        <div class="confidence-bar">
+          <div class="confidence-bar-fill" id="confidenceFill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="result-total" id="resultTotal" style="display:none">
+        <span class="result-total-label" id="totalLabel">Jami:</span>
+        <span class="result-total-amount" id="totalAmount">0 so'm</span>
+      </div>
+      <div class="action-bar">
+        <button class="action-btn" id="btnSpeak" aria-label="Qayta aytish">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+            <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" />
+          </svg>
+          <span id="speakLabel">Aytish</span>
+        </button>
+        <button class="action-btn" id="btnAddCount" aria-label="Qo'shish">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span id="addLabel">Qo'shish</span>
+        </button>
+        <button class="action-btn danger" id="btnReset" aria-label="Tozalash">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <polyline points="1 4 1 10 7 10" />
+            <path d="M3.51 15a9 9 0 102.13-9.36L1 10" />
+          </svg>
+          <span id="resetLabel">Tozalash</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="settings" class="screen hidden" role="main">
+    <div class="settings-header">
+      <button class="back-btn" id="btnBackFromSettings" aria-label="Orqaga">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      <h2 id="settingsTitle">Sozlamalar</h2>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-title" id="langGroupTitle">TIL</div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <span class="setting-label" id="langLabel">Til tanlash</span>
+        </div>
+        <div class="lang-options">
+          <button class="lang-btn active" data-lang="uz">O'zbek</button>
+          <button class="lang-btn" data-lang="ru">Рус</button>
+          <button class="lang-btn" data-lang="en">Eng</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-title" id="voiceGroupTitle">OVOZ</div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <span class="setting-label" id="voiceToggleLabel">Ovozli yordamchi</span>
+          <span class="setting-desc" id="voiceToggleDesc">Pul aniqlanganda ovoz chiqarish</span>
+        </div>
+        <button class="toggle active" id="toggleVoice" role="switch" aria-checked="true"
+          aria-label="Ovozli yordamchi"></button>
+      </div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <span class="setting-label" id="vibroToggleLabel">Vibratsiya</span>
+          <span class="setting-desc" id="vibroToggleDesc">Aniqlanganda tebranish</span>
+        </div>
+        <button class="toggle active" id="toggleVibro" role="switch" aria-checked="true"
+          aria-label="Vibratsiya"></button>
+      </div>
+      <div class="setting-item" style="flex-direction:column;align-items:stretch">
+        <div style="display:flex;justify-content:space-between;align-items:center;width:100%">
+          <span class="setting-label" id="speedLabel">Ovoz tezligi</span>
+          <span id="speedValue" style="color:var(--accent);font-weight:600">1.0x</span>
+        </div>
+        <input type="range" class="speed-slider" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1"
+          aria-label="Ovoz tezligi">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-title" id="displayGroupTitle">KO'RINISH</div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <span class="setting-label" id="themeLabel">Yorug' rejim</span>
+          <span class="setting-desc" id="themeDesc">Qorong'u/yorug' rejimni almashtirish</span>
+        </div>
+        <button class="toggle" id="toggleTheme" role="switch" aria-checked="false" aria-label="Yorug' rejim"></button>
+      </div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <span class="setting-label" id="accessLabel">Maxsus imkoniyatlar</span>
+          <span class="setting-desc" id="accessDesc">Katta shrift va yuqori kontrast</span>
+        </div>
+        <button class="toggle" id="toggleAccess" role="switch" aria-checked="false"
+          aria-label="Maxsus imkoniyatlar"></button>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-title" id="aiGroupTitle">SUN'IY INTELLEKT</div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <span class="setting-label" id="fakeDetectLabel">Soxta pul aniqlash</span>
+          <span class="setting-desc" id="fakeDetectDesc">AI soxta pullarni ogohlantiradi</span>
+        </div>
+        <button class="toggle active" id="toggleFakeDetect" role="switch" aria-checked="true"
+          aria-label="Soxta pul aniqlash"></button>
+      </div>
+      <div class="setting-item">
+        <div class="setting-info">
+          <span class="setting-label" id="autoScanLabel">Avtomatik skanerlash</span>
+          <span class="setting-desc" id="autoScanDesc">Pulni avtomatik aniqlash</span>
+        </div>
+        <button class="toggle active" id="toggleAutoScan" role="switch" aria-checked="true"
+          aria-label="Avtomatik skanerlash"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="history" class="screen hidden" role="main">
+    <div class="settings-header">
+      <button class="back-btn" id="btnBackFromHistory" aria-label="Orqaga">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      <h2 id="historyTitle">Tarix</h2>
+    </div>
+    <div class="history-summary" id="historySummary">
+      <div class="history-summary-amount" id="historySumAmount">0 so'm</div>
+      <div class="history-summary-label" id="historySumLabel">Jami aniqlangan</div>
+      <div class="history-summary-count" id="historySumCount">0 ta pul</div>
+    </div>
+    <div id="historyList"></div>
+    <p style="text-align:center;color:var(--text-muted);margin-top:20px;font-size:0.9rem" id="historyEmpty">Hali hech
+      narsa skanerlenmagan</p>
+  </div>
+
+  <!-- FAKE ALERT MODAL -->
+  <div class="fake-alert" id="fakeAlert" role="alertdialog" aria-modal="true">
+    <div class="fake-alert-card">
+      <div class="fake-alert-icon">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+          <path d="M24 18v8" />
+          <circle cx="24" cy="32" r="1.5" fill="currentColor" />
+          <path
+            d="M10.29 41h27.42c2.5 0 4.04-2.72 2.78-4.9L26.78 7.2a3.12 3.12 0 00-5.56 0L7.51 36.1C6.25 38.28 7.79 41 10.29 41z" />
+        </svg>
+      </div>
+      <h3 class="fake-alert-title" id="fakeAlertTitle">⚠️ Ehtiyot bo'ling!</h3>
+      <p class="fake-alert-desc" id="fakeAlertDesc">AI bu pulni soxta deb aniqladi. Iltimos, ehtiyot bo'ling va
+        tekshiring.</p>
+      <button class="btn-primary" id="btnCloseFake">Tushundim</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "Yordamchi - Pul Aniqlash",
+  "short_name": "Yordamchi",
+  "description": "Yordamchi - Ko'zi ojiz insonlar uchun AI pul aniqlash ilovasi. O'zbekiston so'mlarini real vaqt rejimida skanerlash.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a1a",
+  "theme_color": "#00d4aa",
+  "lang": "uz",
+  "categories": ["finance", "utilities", "accessibility"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230a0a1a'/><circle cx='256' cy='220' r='80' fill='none' stroke='%2300d4aa' stroke-width='8'/><path d='M256 260 L256 320' stroke='%2300d4aa' stroke-width='8' stroke-linecap='round'/><text x='256' y='420' text-anchor='middle' fill='%23ffd700' font-size='80' font-weight='bold' font-family='sans-serif'>SO'M</text><circle cx='256' cy='220' r='30' fill='%2300d4aa' opacity='0.3'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
